@@ -24,7 +24,7 @@ namespace api.Dtos.Stock
         [MaxLength(10, ErrorMessage = "Industry cannot exceed 50 characters.")]
         public string Industry { get; set; } = string.Empty;
         [Required]
-        [Range(1, double.MaxValue, ErrorMessage = "Market cap must be greater than 0.")]
-        public long MarketCap { get; set; }
+        [MaxLength(20, ErrorMessage = "Market Cap cannot exceed 20 characters.")]
+        public string MarketCap { get; set; } = string.Empty;
     }
 }

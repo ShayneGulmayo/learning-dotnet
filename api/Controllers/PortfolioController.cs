@@ -43,8 +43,8 @@ namespace api.Controllers
             var appUser = await _userManager.FindByNameAsync(username);
             var stock = await _stockRepo.GetStockBySymbolAsync(symbol);
             if(stock == null) return BadRequest($"Stock with symbol {symbol} does not exist.");
-            var userPortfolio = await _portfolioRepo.GetUserPortfolio(appUser);
-            if(userPortfolio.Any(s => s.Symbol == symbol))
+            var alreadyInPortfolio = await _portfolioRepo.ExistsAsync(appUser.Id, symbol);
+            if(alreadyInPortfolio)
             {
                 return BadRequest($"Stock with symbol {symbol} is already in your portfolio.");
             }
@@ -70,14 +70,8 @@ namespace api.Controllers
             var username = User.GetUsername();
             var appUser = await _userManager.FindByNameAsync(username);
 
-            var userPortfolio = await _portfolioRepo.GetUserPortfolio(appUser);
-
-            var filteredStock = userPortfolio.Where(s => s.Symbol.ToLower() == symbol.ToLower()).ToList();
-            if(filteredStock.Count() == 1)
-            {
-                await _portfolioRepo.DeleteAsync(appUser, symbol);
-            }
-            else
+            var deletedPortfolio = await _portfolioRepo.DeleteAsync(appUser, symbol);
+            if(deletedPortfolio == null)
             {
                 return BadRequest($"Stock with symbol {symbol} is not in your portfolio.");
             }
